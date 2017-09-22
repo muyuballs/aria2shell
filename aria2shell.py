@@ -34,7 +34,7 @@ version : show aria2 version
 status  : show task status
 adduri  : add url task 
 torrent : add torrent task
-exit    : exit dash
+exit    : exit shell
     ''')
     pass
 
@@ -73,28 +73,43 @@ def call_rpc(method, *params):
         print(traceback.print_exc())
 
 
+def print_tasks(rel):
+    if rel:
+        global_complete = 0
+        global_total = 0
+        global_speed = 0
+        for obj in rel:
+            print('>>> GID:', obj['gid'])
+            task_length = int(obj['totalLength'])
+            task_complete = int(obj['completedLength'])
+            task_speed = int(obj['downloadSpeed'])
+            global_complete += task_complete
+            global_total += task_length
+            global_speed += task_speed
+            for x in obj['files']:
+                file_complete = int(x['completedLength'])
+                file_length = int(x['length'])
+                print(x['index'], ':', "%s/%s" % (humanize(file_complete), humanize(file_length)),
+                      path.split(x['path'])[-1])
+
+            pres = 0
+            if task_length != 0:
+                pres = int(task_complete / task_length * 100)
+            print('[%s]\t%s/s\t%s/%s (%d%%)' % (
+                obj['status'], humanize(task_speed), humanize(task_complete), humanize(task_length), pres))
+        pres = 0
+        if global_total != 0:
+            pres = int(global_complete / global_total * 100)
+        print('[Total:%d]\t%s/s\t%s/%s (%d%%)' % (
+            len(rel), humanize(global_speed), humanize(global_complete), humanize(global_total), pres))
+
+
 def tell_actives():
     try:
         rel = call_rpc('aria2.tellActive')
         print()
         if rel:
-            xrel = json.loads(rel)['result']
-            for obj in xrel:
-                print('>>> GID:', obj['gid'])
-                tl = int(obj['totalLength'])
-                cl = int(obj['completedLength'])
-                dsp = int(obj['downloadSpeed'])
-                for x in obj['files']:
-                    xcl = int(x['completedLength'])
-                    xl = int(x['length'])
-                    print(x['index'], ':', "%s/%s" % (humanize(xcl), humanize(xl)), path.split(x['path'])[-1])
-
-                pres = 0
-                if tl != 0:
-                    pres = int(cl / tl * 100)
-                print('[%s]\t%s/s\t%s/%s (%d%%)' % (
-                    obj['status'], humanize(dsp), humanize(cl), humanize(tl), pres))
-        print('Total:', len(xrel))
+            print_tasks(json.loads(rel)['result'])
     except Exception:
         print(traceback.print_exc())
     pass
@@ -107,23 +122,7 @@ def tell_waiting():
         rel = call_rpc('aria2.tellWaiting', offset, num)
         print()
         if rel:
-            xrel = json.loads(rel)['result']
-            for obj in xrel:
-                print('>>> GID:', obj['gid'])
-                tl = int(obj['totalLength'])
-                cl = int(obj['completedLength'])
-                dsp = int(obj['downloadSpeed'])
-                for x in obj['files']:
-                    xcl = int(x['completedLength'])
-                    xl = int(x['length'])
-                    print(x['index'], ':', "%s/%s" % (humanize(xcl), humanize(xl)), path.split(x['path'])[-1])
-
-                pres = 0
-                if tl != 0:
-                    pres = int(cl / tl * 100)
-                print('[%s]\t%s/s\t%s/%s (%d%%)' % (
-                    obj['status'], humanize(dsp), humanize(cl), humanize(tl), pres))
-        print('Total:', len(xrel))
+            print_tasks(json.loads(rel)['result'])
     except Exception:
         print(traceback.print_exc())
     pass
@@ -136,23 +135,7 @@ def tell_stopped():
         rel = call_rpc('aria2.tellStopped', offset, num)
         print()
         if rel:
-            xrel = json.loads(rel)['result']
-            for obj in xrel:
-                print('>>> GID:', obj['gid'])
-                tl = int(obj['totalLength'])
-                cl = int(obj['completedLength'])
-                dsp = int(obj['downloadSpeed'])
-                for x in obj['files']:
-                    xcl = int(x['completedLength'])
-                    xl = int(x['length'])
-                    print(x['index'], ':', "%s/%s" % (humanize(xcl), humanize(xl)), path.split(x['path'])[-1])
-
-                pres = 0
-                if tl != 0:
-                    pres = int(cl / tl * 100)
-                print('[%s]\t%s/s\t%s/%s (%d%%)' % (
-                    obj['status'], humanize(dsp), humanize(cl), humanize(tl), pres))
-        print('Total:', len(xrel))
+            print_tasks(json.loads(rel)['result'])
     except Exception:
         print(traceback.print_exc())
     pass
