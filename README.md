@@ -3,6 +3,7 @@ simple aria2shell
 * addUrl
 * addTorrent
 * show Active
+* show loading
 * show Waiting
 * show Stopped
 * show status

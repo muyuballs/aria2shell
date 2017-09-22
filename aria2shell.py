@@ -30,6 +30,7 @@ secret  : set rpc secret
 active  : show active tasks
 waiting : show waiting tasks
 stopped : show stopped tasks
+loading : show dowloading tasks
 version : show aria2 version
 status  : show task status
 adduri  : add url task 
@@ -110,6 +111,17 @@ def tell_actives():
         print()
         if rel:
             print_tasks(json.loads(rel)['result'])
+    except Exception:
+        print(traceback.print_exc())
+    pass
+
+
+def tell_loading():
+    try:
+        rel = call_rpc('aria2.tellActive')
+        print()
+        if rel:
+            print_tasks([x for x in json.loads(rel)['result'] if x['totalLength'] != x['completedLength']])
     except Exception:
         print(traceback.print_exc())
     pass
@@ -241,6 +253,8 @@ while True:
         tell_waiting()
     elif method == 'stopped':
         tell_stopped()
+    elif method == 'loading':
+        tell_loading()
     elif method == 'status':
         tell_status()
     elif method == 'version':
