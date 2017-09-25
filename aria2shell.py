@@ -33,21 +33,13 @@ stopped : show stopped tasks
 loading : show dowloading tasks
 version : show aria2 version
 status  : show task status
+pause   : pause task
+resume  : unpause task
+remove  : remove task
 adduri  : add url task 
 torrent : add torrent task
 exit    : exit shell
     ''')
-    pass
-
-
-def get_version():
-    try:
-        rel = call_rpc('aria2.getVersion')
-        if rel:
-            obj = json.loads(rel)
-            print(obj['result'])
-    except Exception:
-        print(traceback.print_exc())
     pass
 
 
@@ -103,6 +95,17 @@ def print_tasks(rel):
             pres = int(global_complete / global_total * 100)
         print('[Total:%d]\t%s/s\t%s/%s (%d%%)' % (
             len(rel), humanize(global_speed), humanize(global_complete), humanize(global_total), pres))
+
+
+def get_version():
+    try:
+        rel = call_rpc('aria2.getVersion')
+        if rel:
+            obj = json.loads(rel)
+            print(obj['result'])
+    except Exception:
+        print(traceback.print_exc())
+    pass
 
 
 def tell_actives():
@@ -183,6 +186,48 @@ def tell_status():
         print(traceback.print_exc())
 
 
+def tell_pause():
+    try:
+        gid = input("gid:")
+        if not gid:
+            return
+        rel = call_rpc('aria2.pause', gid)
+        print()
+        if rel:
+            obj = json.loads(rel)
+            print(obj['result'])
+    except Exception:
+        print(traceback.print_exc())
+
+
+def tell_unpause():
+    try:
+        gid = input("gid:")
+        if not gid:
+            return
+        rel = call_rpc('aria2.unpause', gid)
+        print()
+        if rel:
+            obj = json.loads(rel)
+            print(obj['result'])
+    except Exception:
+        print(traceback.print_exc())
+
+
+def tell_remove():
+    try:
+        gid = input("gid:")
+        if not gid:
+            return
+        rel = call_rpc('aria2.remove', gid)
+        print()
+        if rel:
+            obj = json.loads(rel)
+            print(obj['result'])
+    except Exception:
+        print(traceback.print_exc())
+
+
 def add_url():
     urls = []
     print("please input urls")
@@ -258,6 +303,12 @@ while True:
         tell_loading()
     elif method == 'status':
         tell_status()
+    elif method == 'pause':
+        tell_pause()
+    elif method == 'resume':
+        tell_unpause()
+    elif method == 'remove':
+        tell_remove()
     elif method == 'version':
         get_version()
     elif method == 'adduri':
