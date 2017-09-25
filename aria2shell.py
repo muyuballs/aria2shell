@@ -190,6 +190,7 @@ def add_url():
         url = input("url:")
         if not url:
             break
+        urls.append(url)
     if len(urls) < 1:
         print('not url input')
         return
