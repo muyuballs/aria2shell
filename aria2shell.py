@@ -82,7 +82,7 @@ def print_tasks(rel):
             for x in obj['files']:
                 file_complete = int(x['completedLength'])
                 file_length = int(x['length'])
-                print(x['index'], ':', "%s/%s" % (humanize(file_complete), humanize(file_length)),
+                print(x['index'], ':','[%.2f]'%(file_complete*1.0/file_length) ,"%s/%s" % (humanize(file_complete), humanize(file_length)),
                       path.split(x['path'])[-1])
 
             pres = 0
